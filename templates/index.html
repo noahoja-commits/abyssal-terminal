@@ -9,9 +9,11 @@
 <body>
     <canvas id="bloodCanvas"></canvas>
     <canvas id="emberCanvas"></canvas>
+    <canvas id="veinCanvas"></canvas>
     <div class="scanlines"></div>
     <div class="vignette"></div>
     <div class="possession-flash" id="possessionFlash"></div>
+    <div class="corruption-overlay" id="corruptionOverlay"></div>
 
     <div class="pentagram-bg">
         <svg viewBox="0 0 200 200">
@@ -42,9 +44,10 @@
         <h1 class="glitch-title" data-text="ABYSSAL TERMINAL">ABYSSAL TERMINAL</h1>
         <p class="subtitle">v666.0.0 — GOY OPERATIVE</p>
 
-        <div class="command-line">
+        <div class="command-line" id="commandLine">
             <span class="prompt">root@abyss:~$</span>
-            <span class="cursor"></span>
+            <span class="typed-text" id="typedText"></span>
+            <span class="cursor" id="cursor"></span>
         </div>
 
         <div class="ritual-panel" id="ritualPanel">
@@ -54,10 +57,16 @@
             <button class="ritual-btn" data-rite="blood">BLOOD</button>
         </div>
         <div class="ritual-output" id="ritualOutput"></div>
+
+        <div class="possession-log" id="possessionLog"></div>
     </div>
 
     <div class="easter-egg" id="easterEgg">666</div>
     <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
+
+    <audio id="ambientDrone" loop preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleR0NZKrk7rNsGgxJkNTsvXwkDk+L0O+0dSQPUIjN7LVyJQ1KiMzrsnMiDUmGzOuwdyMOSIfL6q12Iw5IhsnprHUjDkiGyOepdSIO" type="audio/wav">
+    </audio>
 
     <script src="/static/app.js"></script>
 </body>

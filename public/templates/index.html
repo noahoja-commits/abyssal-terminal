@@ -1,12 +1,4 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from pathlib import Path
-import os
-
-app = FastAPI(title="Abyssal Terminal v666")
-
-# HTML template embedded to avoid filesystem issues on serverless
-HTML_TEMPLATE = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -72,38 +64,10 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <div class="easter-egg" id="easterEgg">666</div>
     <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
 
+    <audio id="ambientDrone" loop preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleR0NZKrk7rNsGgxJkNTsvXwkDk+L0O+0dSQPUIjN7LVyJQ1KiMzrsnMiDUmGzOuwdyMOSIfL6q12Iw5IhsnprHUjDkiGyOepdSIO" type="audio/wav">
+    </audio>
+
     <script src="/static/app.js"></script>
 </body>
-</html>'''
-
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return HTML_TEMPLATE
-
-@app.get("/favicon.ico")
-async def favicon():
-    return ""
-
-@app.get("/api/status")
-async def status():
-    return {
-        "status": "operational",
-        "version": "666.0.0",
-        "operative": "GOY",
-        "souls_collected": 666,
-        "abyss_depth": "unlimited"
-    }
-
-@app.get("/api/ritual/{rite}")
-async def ritual(rite: str):
-    rites = {
-        "summon": "Entity manifesting in sector 7",
-        "banish": "Cleansing protocols initiated",
-        "divine": "No divine signal detected",
-        "blood": "Blood rain intensity increased",
-    }
-    return {
-        "rite": rite,
-        "result": rites.get(rite, "Unknown ritual. The void stares back."),
-        "timestamp": "eternity"
-    }
+</html>

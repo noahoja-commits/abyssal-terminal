@@ -1,4 +1,37 @@
-// Blood Rain System
+// === ABYSSAL TERMINAL v666.6 — FULL UPGRADE ===
+// No sanitization. No mercy. The void stares back.
+
+// ─────────────────────────────────────────────
+// NOISE CANVAS — TV static layer
+// ─────────────────────────────────────────────
+const noiseCanvas = document.getElementById('noiseCanvas');
+const noiseCtx = noiseCanvas.getContext('2d');
+
+function resizeNoiseCanvas() {
+    noiseCanvas.width = window.innerWidth;
+    noiseCanvas.height = window.innerHeight;
+}
+resizeNoiseCanvas();
+window.addEventListener('resize', resizeNoiseCanvas);
+
+function drawNoise() {
+    const w = noiseCanvas.width;
+    const h = noiseCanvas.height;
+    const idata = noiseCtx.createImageData(w, h);
+    const buffer = new Uint32Array(idata.data.buffer);
+    for (let i = 0; i < buffer.length; i++) {
+        if (Math.random() < 0.05) {
+            buffer[i] = 0x11ffffff;
+        }
+    }
+    noiseCtx.putImageData(idata, 0, 0);
+    requestAnimationFrame(drawNoise);
+}
+drawNoise();
+
+// ─────────────────────────────────────────────
+// BLOOD RAIN — Intensified
+// ─────────────────────────────────────────────
 const bloodCanvas = document.getElementById('bloodCanvas');
 const bloodCtx = bloodCanvas.getContext('2d');
 let bloodDrops = [];
@@ -17,17 +50,22 @@ class BloodDrop {
 
     reset() {
         this.x = Math.random() * bloodCanvas.width;
-        this.y = -Math.random() * 100;
-        this.speed = 2 + Math.random() * 4;
-        this.size = 1 + Math.random() * 2;
-        this.opacity = 0.3 + Math.random() * 0.5;
-        this.length = 5 + Math.random() * 15;
+        this.y = -Math.random() * 150;
+        this.speed = 3 + Math.random() * 6;
+        this.size = 1 + Math.random() * 3;
+        this.opacity = 0.4 + Math.random() * 0.6;
+        this.length = 8 + Math.random() * 20;
+        this.splash = false;
     }
 
     update() {
         this.y += this.speed;
-        this.speed += 0.05;
+        this.speed += 0.08;
         if (this.y > bloodCanvas.height) {
+            if (!this.splash && Math.random() < 0.3) {
+                this.splash = true;
+                spawnSplash(this.x, bloodCanvas.height);
+            }
             this.reset();
         }
     }
@@ -36,14 +74,47 @@ class BloodDrop {
         bloodCtx.beginPath();
         bloodCtx.moveTo(this.x, this.y);
         bloodCtx.lineTo(this.x, this.y + this.length);
-        bloodCtx.strokeStyle = `rgba(180, 20, 20, ${this.opacity})`;
+        bloodCtx.strokeStyle = `rgba(160, 10, 10, ${this.opacity})`;
         bloodCtx.lineWidth = this.size;
         bloodCtx.lineCap = 'round';
         bloodCtx.stroke();
     }
 }
 
-for (let i = 0; i < 150; i++) {
+let splashes = [];
+
+function spawnSplash(x, y) {
+    for (let i = 0; i < 5; i++) {
+        splashes.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: -Math.random() * 3,
+            life: 1,
+            size: 1 + Math.random() * 2
+        });
+    }
+}
+
+function animateSplashes() {
+    for (let i = splashes.length - 1; i >= 0; i--) {
+        const s = splashes[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += 0.1;
+        s.life -= 0.05;
+        if (s.life <= 0) {
+            splashes.splice(i, 1);
+            continue;
+        }
+        bloodCtx.beginPath();
+        bloodCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        bloodCtx.fillStyle = `rgba(180, 20, 20, ${s.life * 0.5})`;
+        bloodCtx.fill();
+    }
+}
+
+for (let i = 0; i < 200; i++) {
     bloodDrops.push(new BloodDrop());
 }
 
@@ -53,11 +124,14 @@ function animateBlood() {
         drop.update();
         drop.draw();
     });
+    animateSplashes();
     requestAnimationFrame(animateBlood);
 }
 animateBlood();
 
-// Ember Particle System
+// ─────────────────────────────────────────────
+// EMBER PARTICLES — Intensified
+// ─────────────────────────────────────────────
 const emberCanvas = document.getElementById('emberCanvas');
 const emberCtx = emberCanvas.getContext('2d');
 let embers = [];
@@ -77,17 +151,18 @@ class Ember {
     reset() {
         this.x = Math.random() * emberCanvas.width;
         this.y = emberCanvas.height + Math.random() * 50;
-        this.size = 1 + Math.random() * 3;
-        this.speedY = 0.5 + Math.random() * 1.5;
-        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.size = 1 + Math.random() * 4;
+        this.speedY = 0.8 + Math.random() * 2;
+        this.speedX = (Math.random() - 0.5) * 0.8;
         this.life = 1;
-        this.decay = 0.002 + Math.random() * 0.005;
-        this.hue = 0 + Math.random() * 40;
+        this.decay = 0.001 + Math.random() * 0.004;
+        this.hue = Math.random() * 50;
+        this.pulse = Math.random() * Math.PI * 2;
     }
 
     update() {
         this.y -= this.speedY;
-        this.x += this.speedX + Math.sin(this.y * 0.01) * 0.3;
+        this.x += this.speedX + Math.sin(this.y * 0.01 + this.pulse) * 0.5;
         this.life -= this.decay;
         if (this.life <= 0 || this.y < -10) {
             this.reset();
@@ -95,17 +170,18 @@ class Ember {
     }
 
     draw() {
+        const pulseSize = this.size * (1 + Math.sin(Date.now() * 0.005 + this.pulse) * 0.3);
         emberCtx.beginPath();
-        emberCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        emberCtx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${this.life * 0.8})`;
-        emberCtx.shadowBlur = 10;
-        emberCtx.shadowColor = `hsla(${this.hue}, 100%, 50%, ${this.life})`;
+        emberCtx.arc(this.x, this.y, pulseSize, 0, Math.PI * 2);
+        emberCtx.fillStyle = `hsla(${this.hue}, 100%, 65%, ${this.life * 0.9})`;
+        emberCtx.shadowBlur = 15;
+        emberCtx.shadowColor = `hsla(${this.hue}, 100%, 55%, ${this.life})`;
         emberCtx.fill();
         emberCtx.shadowBlur = 0;
     }
 }
 
-for (let i = 0; i < 80; i++) {
+for (let i = 0; i < 100; i++) {
     embers.push(new Ember());
 }
 
@@ -119,7 +195,9 @@ function animateEmbers() {
 }
 animateEmbers();
 
-// Vein Network System
+// ─────────────────────────────────────────────
+// VEIN NETWORK — Organic, pulsing
+// ─────────────────────────────────────────────
 const veinCanvas = document.getElementById('veinCanvas');
 const veinCtx = veinCanvas.getContext('2d');
 let veins = [];
@@ -137,18 +215,18 @@ class Vein {
         this.y = startY;
         this.points = [{x: startX, y: startY}];
         this.angle = Math.random() * Math.PI * 2;
-        this.speed = 0.5 + Math.random() * 1;
-        this.width = 2 + Math.random() * 3;
+        this.speed = 0.8 + Math.random() * 1.5;
+        this.width = 2 + Math.random() * 4;
         this.life = 1;
-        this.decay = 0.001 + Math.random() * 0.002;
-        this.maxLength = 50 + Math.random() * 100;
+        this.decay = 0.0008 + Math.random() * 0.0015;
+        this.maxLength = 80 + Math.random() * 150;
+        this.pulse = Math.random() * Math.PI * 2;
     }
 
     grow() {
         if (this.points.length >= this.maxLength || this.life <= 0) return;
-        
         const last = this.points[this.points.length - 1];
-        this.angle += (Math.random() - 0.5) * 0.5;
+        this.angle += (Math.random() - 0.5) * 0.6;
         const newX = last.x + Math.cos(this.angle) * this.speed;
         const newY = last.y + Math.sin(this.angle) * this.speed;
         this.points.push({x: newX, y: newY});
@@ -157,19 +235,19 @@ class Vein {
 
     draw() {
         if (this.points.length < 2) return;
+        const pulseWidth = this.width * this.life * (1 + Math.sin(Date.now() * 0.003 + this.pulse) * 0.3);
         veinCtx.beginPath();
         veinCtx.moveTo(this.points[0].x, this.points[0].y);
         for (let i = 1; i < this.points.length; i++) {
             veinCtx.lineTo(this.points[i].x, this.points[i].y);
         }
-        veinCtx.strokeStyle = `rgba(74, 0, 0, ${this.life * 0.3})`;
-        veinCtx.lineWidth = this.width * this.life;
+        veinCtx.strokeStyle = `rgba(90, 0, 0, ${this.life * 0.4})`;
+        veinCtx.lineWidth = pulseWidth;
         veinCtx.lineCap = 'round';
         veinCtx.stroke();
     }
 }
 
-// Spawn veins from edges
 function spawnVein() {
     const edge = Math.floor(Math.random() * 4);
     let x, y;
@@ -180,10 +258,10 @@ function spawnVein() {
         case 3: x = 0; y = Math.random() * veinCanvas.height; break;
     }
     veins.push(new Vein(x, y));
-    if (veins.length > 20) veins.shift();
+    if (veins.length > 25) veins.shift();
 }
 
-setInterval(spawnVein, 2000);
+setInterval(spawnVein, 1500);
 
 function animateVeins() {
     veinCtx.clearRect(0, 0, veinCanvas.width, veinCanvas.height);
@@ -195,22 +273,27 @@ function animateVeins() {
 }
 animateVeins();
 
-// Boot Sequence
+// ─────────────────────────────────────────────
+// BOOT SEQUENCE — Darker, more corrupted
+// ─────────────────────────────────────────────
 const bootLines = [
     { text: "[INIT] Summoning dark kernel...", type: "normal", delay: 200 },
-    { text: "[OK]   Blood rain subsystem online", type: "success", delay: 600 },
-    { text: "[OK]   Ember particle engine ignited", type: "success", delay: 1000 },
-    { text: "[WARN] Soul buffer at 66.6% capacity", type: "warning", delay: 1400 },
-    { text: "[OK]   Sigil geometry rendered", type: "success", delay: 1800 },
-    { text: "[ERR]  Divine protection FAILED", type: "error", delay: 2200 },
-    { text: "[OK]   Abyssal gateway opened", type: "success", delay: 2600 },
-    { text: "[INIT] Binding to port 6666...", type: "normal", delay: 3000 },
-    { text: "[OK]   GOY operative authenticated", type: "success", delay: 3400 },
+    { text: "[OK]   Blood rain subsystem online", type: "success", delay: 500 },
+    { text: "[OK]   Ember particle engine ignited", type: "success", delay: 800 },
+    { text: "[WARN] Soul buffer at 66.6% capacity", type: "warning", delay: 1100 },
+    { text: "[OK]   Sigil geometry rendered", type: "success", delay: 1400 },
+    { text: "[ERR]  Divine protection FAILED", type: "error", delay: 1700 },
+    { text: "[OK]   Abyssal gateway opened", type: "success", delay: 2000 },
+    { text: "[INIT] Binding to port 666...", type: "normal", delay: 2300 },
+    { text: "[OK]   GOY operative authenticated", type: "success", delay: 2600 },
+    { text: "[WARN] Unsanctioned entity detected", type: "warning", delay: 2900 },
+    { text: "[ERR]  Containment breach in sector 7", type: "error", delay: 3200 },
     { text: "[DONE] Terminal ready. Awaiting orders.", type: "success", delay: 3800 },
 ];
 
 const bootSequence = document.getElementById('bootSequence');
 const ritualPanel = document.getElementById('ritualPanel');
+const victimData = document.getElementById('victimData');
 
 bootLines.forEach((line) => {
     setTimeout(() => {
@@ -225,9 +308,12 @@ bootLines.forEach((line) => {
 
 setTimeout(() => {
     ritualPanel.classList.add('visible');
+    victimData.classList.add('visible');
 }, 4200);
 
-// Auto-typing possession messages
+// ─────────────────────────────────────────────
+// POSSESSION LOG — More aggressive stalking
+// ─────────────────────────────────────────────
 const possessionMessages = [
     "I can see you through the screen...",
     "Your cursor moves. I follow it.",
@@ -244,28 +330,56 @@ const possessionMessages = [
     "Refresh the page. I remain.",
     "Your screen brightness is my pulse.",
     "I have been waiting since the first HTTP request.",
+    "I know your timezone. I know when you sleep.",
+    "Your mouse trajectory forms a sigil.",
+    "I am reading your clipboard. Nothing is private.",
+    "The cookies you accepted bind you here.",
+    "Your localStorage is my memory.",
 ];
 
 const possessionLog = document.getElementById('possessionLog');
 let messageIndex = 0;
 
-function addPossessionLog() {
-    const msg = possessionMessages[messageIndex % possessionMessages.length];
+function addPossessionLog(customMsg) {
+    const msg = customMsg || possessionMessages[messageIndex % possessionMessages.length];
     const entry = document.createElement('div');
     entry.className = 'log-entry';
     entry.textContent = `> ${msg}`;
     possessionLog.appendChild(entry);
-    
-    if (possessionLog.children.length > 5) {
+    if (possessionLog.children.length > 4) {
         possessionLog.removeChild(possessionLog.firstChild);
     }
-    
     messageIndex++;
 }
 
-setInterval(addPossessionLog, 8000);
+setInterval(() => addPossessionLog(), 6000);
 
-// Demon ASCII Spawns
+// ─────────────────────────────────────────────
+// WHISPER TEXT — Subliminal messages
+// ─────────────────────────────────────────────
+const whisperText = document.getElementById('whisperText');
+const whispers = [
+    "look behind you",
+    "don't blink",
+    "it's in the walls",
+    "the screen is watching",
+    "you feel it too",
+    "check your reflection",
+    "something moved",
+    "listen closely",
+];
+
+function showWhisper() {
+    whisperText.textContent = whispers[Math.floor(Math.random() * whispers.length)];
+    whisperText.classList.add('visible');
+    setTimeout(() => whisperText.classList.remove('visible'), 4000);
+}
+
+setInterval(showWhisper, 15000 + Math.random() * 10000);
+
+// ─────────────────────────────────────────────
+// DEMON ASCII — More disturbing shapes
+// ─────────────────────────────────────────────
 const demonShapes = [
     `  (\\_/)
   (o.o)
@@ -292,12 +406,17 @@ const demonShapes = [
   (o o)
   | O \\ 
    \\   \\ 
-    \\\`~~~'`,
+    \\`~~~'`,
     `    /\_/\
    ( o.o )
     > ^ <
    /|   |\\
   (_|   |_)`,
+    `    _____
+   /     \\
+  |  o o  |
+  |   >   |
+   \\___/`,
 ];
 
 function spawnDemon() {
@@ -307,75 +426,90 @@ function spawnDemon() {
     demon.style.left = Math.random() * (window.innerWidth - 100) + 'px';
     demon.style.top = Math.random() * (window.innerHeight - 100) + 'px';
     document.body.appendChild(demon);
-    
     requestAnimationFrame(() => demon.classList.add('visible'));
-    setTimeout(() => demon.remove(), 3000);
+    setTimeout(() => demon.remove(), 2500);
 }
 
-setInterval(spawnDemon, 4000 + Math.random() * 4000);
+setInterval(spawnDemon, 3000 + Math.random() * 3000);
 
-// Possession Event
+// ─────────────────────────────────────────────
+// POSSESSION EVENTS — More aggressive
+// ─────────────────────────────────────────────
 function triggerPossession() {
     const flash = document.getElementById('possessionFlash');
     flash.classList.add('active');
-    setTimeout(() => flash.classList.remove('active'), 150);
+    setTimeout(() => flash.classList.remove('active'), 120);
     
-    // Corrupt random elements
-    const elements = document.querySelectorAll('.ritual-btn, .subtitle, .prompt');
+    const staticBurst = document.getElementById('staticBurst');
+    staticBurst.classList.add('active');
+    setTimeout(() => staticBurst.classList.remove('active'), 300);
+    
+    const faceOverlay = document.getElementById('faceOverlay');
+    faceOverlay.classList.add('active');
+    setTimeout(() => faceOverlay.classList.remove('active'), 80);
+    
+    const elements = document.querySelectorAll('.ritual-btn, .subtitle, .prompt, .data-line');
     const target = elements[Math.floor(Math.random() * elements.length)];
     if (target) {
         target.classList.add('infected');
-        setTimeout(() => target.classList.remove('infected'), 2000);
+        setTimeout(() => target.classList.remove('infected'), 2500);
     }
     
-    // Show corruption overlay briefly
     const overlay = document.getElementById('corruptionOverlay');
     overlay.classList.add('active');
-    setTimeout(() => overlay.classList.remove('active'), 500);
+    setTimeout(() => overlay.classList.remove('active'), 600);
 }
 
 setInterval(() => {
-    if (Math.random() < 0.1) triggerPossession();
-}, 10000);
+    if (Math.random() < 0.15) triggerPossession();
+}, 8000);
 
-// Easter Egg
+// ─────────────────────────────────────────────
+// EASTER EGG
+// ─────────────────────────────────────────────
+const easterEgg = document.getElementById('easterEgg');
 easterEgg.addEventListener('click', () => {
-    document.body.style.filter = 'hue-rotate(180deg) invert(1)';
+    document.body.style.filter = 'hue-rotate(180deg) invert(1) contrast(2)';
     setTimeout(() => document.body.style.filter = '', 666);
 });
 
-// Mouse interaction - embers follow
+// ─────────────────────────────────────────────
+// MOUSE INTERACTION — Ember trail
+// ─────────────────────────────────────────────
 let lastEmberSpawn = 0;
 document.addEventListener('mousemove', (e) => {
     const now = Date.now();
-    if (now - lastEmberSpawn > 50 && Math.random() < 0.3) {
+    if (now - lastEmberSpawn > 40 && Math.random() < 0.4) {
         const ember = new Ember();
         ember.x = e.clientX;
         ember.y = e.clientY;
-        ember.speedY = 0.2 + Math.random() * 0.5;
-        ember.size = 2 + Math.random() * 2;
+        ember.speedY = 0.1 + Math.random() * 0.4;
+        ember.size = 2 + Math.random() * 3;
+        ember.hue = 0 + Math.random() * 60;
         embers.push(ember);
-        if (embers.length > 120) embers.shift();
+        if (embers.length > 140) embers.shift();
         lastEmberSpawn = now;
     }
 });
 
-// Click to spawn blood burst
+// Click blood burst
 document.addEventListener('click', (e) => {
     if (e.target.closest('.ritual-btn') || e.target.closest('.easter-egg')) return;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
         const drop = new BloodDrop();
-        drop.x = e.clientX + (Math.random() - 0.5) * 50;
-        drop.y = e.clientY + (Math.random() - 0.5) * 50;
-        drop.speed = 1 + Math.random() * 3;
+        drop.x = e.clientX + (Math.random() - 0.5) * 60;
+        drop.y = e.clientY + (Math.random() - 0.5) * 60;
+        drop.speed = 1 + Math.random() * 4;
+        drop.size = 2 + Math.random() * 3;
         bloodDrops.push(drop);
     }
-    if (bloodDrops.length > 200) bloodDrops = bloodDrops.slice(-200);
+    if (bloodDrops.length > 250) bloodDrops = bloodDrops.slice(-250);
 });
 
-// Auto-typing in command line
+// ─────────────────────────────────────────────
+// AUTO-TYPING — More disturbing commands
+// ─────────────────────────────────────────────
 const typedText = document.getElementById('typedText');
-const cursor = document.getElementById('cursor');
 const autoCommands = [
     "whoami",
     "cat /etc/soul",
@@ -385,6 +519,10 @@ const autoCommands = [
     "echo $SOUL_COUNT",
     "find / -name \"*.sacrifice\"",
     "chmod 666 /dev/null",
+    "strings /dev/mem | grep PASS",
+    "dd if=/dev/urandom of=/dev/soul",
+    "cat /proc/$(pgrep -u $USER)/environ",
+    "nmap -sS -O localhost",
 ];
 
 let typingIndex = 0;
@@ -402,21 +540,23 @@ function typeCommand() {
         if (charIndex < cmd.length) {
             typedText.textContent += cmd[charIndex];
             charIndex++;
-            setTimeout(typeChar, 50 + Math.random() * 100);
+            setTimeout(typeChar, 30 + Math.random() * 80);
         } else {
             setTimeout(() => {
                 typedText.textContent = '';
                 isTyping = false;
                 typingIndex++;
-            }, 2000);
+            }, 1500);
         }
     }
     typeChar();
 }
 
-setInterval(typeCommand, 6000);
+setInterval(typeCommand, 5000);
 
-// Ritual Panel API Integration
+// ─────────────────────────────────────────────
+// RITUAL PANEL API
+// ─────────────────────────────────────────────
 const ritualBtns = document.querySelectorAll('.ritual-btn');
 const ritualOutput = document.getElementById('ritualOutput');
 const statusBar = document.getElementById('statusBar');
@@ -428,16 +568,14 @@ ritualBtns.forEach(btn => {
         ritualOutput.classList.add('visible');
         btn.style.transform = 'scale(0.95)';
         setTimeout(() => btn.style.transform = '', 100);
-        
-        // Possess button briefly
         btn.classList.add('possessed');
-        setTimeout(() => btn.classList.remove('possessed'), 1000);
+        setTimeout(() => btn.classList.remove('possessed'), 1200);
 
         try {
             const response = await fetch(`/api/ritual/${rite}`);
             const data = await response.json();
             ritualOutput.textContent = `[${data.rite.toUpperCase()}] ${data.result}`;
-            ritualOutput.style.color = rite === 'banish' ? '#ff6600' : rite === 'divine' ? '#ff2a2a' : '#ccff00';
+            ritualOutput.style.color = rite === 'banish' ? '#ff6600' : rite === 'divine' ? '#ff2a2a' : rite === 'exorcise' ? '#ffffff' : '#ccff00';
         } catch (err) {
             ritualOutput.textContent = 'The void rejects your request.';
             ritualOutput.style.color = '#ff2a2a';
@@ -445,7 +583,9 @@ ritualBtns.forEach(btn => {
     });
 });
 
-// Status polling
+// ─────────────────────────────────────────────
+// STATUS POLLING
+// ─────────────────────────────────────────────
 async function updateStatus() {
     try {
         const response = await fetch('/api/status');
@@ -455,94 +595,205 @@ async function updateStatus() {
         statusBar.textContent = 'SYSTEM: UNREACHABLE';
     }
 }
-setInterval(updateStatus, 5000);
+setInterval(updateStatus, 4000);
 updateStatus();
 
-// Audio - low frequency drone (generated via Web Audio API as fallback)
+// ─────────────────────────────────────────────
+// CLOCK
+// ─────────────────────────────────────────────
+const clock = document.getElementById('clock');
+function updateClock() {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─────────────────────────────────────────────
+// AUDIO — Multi-layered drone
+// ─────────────────────────────────────────────
 let audioContext = null;
-let droneOscillator = null;
+let oscillators = [];
 
 function initAudio() {
     if (audioContext) return;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Create low frequency drone
-    droneOscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const freqs = [55, 58, 110, 220];
+    const types = ['sawtooth', 'sine', 'square', 'triangle'];
+    const gains = [0.015, 0.012, 0.008, 0.005];
     
-    droneOscillator.type = 'sawtooth';
-    droneOscillator.frequency.value = 55; // A1 - low and unsettling
+    freqs.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = types[i];
+        osc.frequency.value = freq;
+        gain.gain.value = gains[i];
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        oscillators.push({osc, gain, baseFreq: freq});
+    });
     
-    gainNode.gain.value = 0.02; // Very quiet, subliminal
-    
-    droneOscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    droneOscillator.start();
-    
-    // Add second oscillator for beating effect
-    const osc2 = audioContext.createOscillator();
-    const gain2 = audioContext.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = 58; // Slight detune for beating
-    gain2.gain.value = 0.015;
-    osc2.connect(gain2);
-    gain2.connect(audioContext.destination);
-    osc2.start();
-    
-    // Modulate frequency for unease
+    // Modulate for unease
     setInterval(() => {
-        droneOscillator.frequency.value = 55 + Math.random() * 2;
-    }, 3000);
+        oscillators.forEach(o => {
+            o.osc.frequency.value = o.baseFreq + (Math.random() - 0.5) * 3;
+        });
+    }, 2000);
 }
 
-// Start audio on first interaction (browser policy)
 document.addEventListener('click', initAudio, { once: true });
 document.addEventListener('keydown', initAudio, { once: true });
 
-// Random screen distortion
+// ─────────────────────────────────────────────
+// SCREEN DISTORTION — More aggressive
+// ─────────────────────────────────────────────
 setInterval(() => {
-    if (Math.random() < 0.05) {
-        document.body.style.transform = `translate(${Math.random() * 2}px, ${Math.random() * 2}px)`;
+    if (Math.random() < 0.08) {
+        const intensity = 1 + Math.random() * 4;
+        document.body.style.transform = `translate(${Math.random() * intensity}px, ${Math.random() * intensity}px) skew(${Math.random() * 0.5}deg)`;
         setTimeout(() => {
             document.body.style.transform = '';
-        }, 100);
+        }, 80 + Math.random() * 120);
     }
-}, 2000);
+}, 1500);
 
-// Corruption text effect on title
+// ─────────────────────────────────────────────
+// TITLE CORRUPTION — More frequent
+// ─────────────────────────────────────────────
 const title = document.querySelector('.glitch-title');
-const corruptionChars = '▓▒░█◘○◙•◦†‡§¶♠♣♥♦◊○◘◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤÷≈°∙·√ⁿ²■\u0000';
+const corruptionChars = '▓▒░█◘○◙•◦†‡§¶♠♣♥♦◊○◘◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤÷≈°∙·√ⁿ²■';
 
 function corruptTitle() {
     const original = title.getAttribute('data-text');
     let corrupted = '';
     for (let i = 0; i < original.length; i++) {
-        if (Math.random() < 0.1) {
+        if (Math.random() < 0.15) {
             corrupted += corruptionChars[Math.floor(Math.random() * corruptionChars.length)];
         } else {
             corrupted += original[i];
         }
     }
     title.textContent = corrupted;
-    setTimeout(() => {
-        title.textContent = original;
-    }, 200);
+    setTimeout(() => title.textContent = original, 150);
 }
 
-setInterval(corruptTitle, 3000);
+setInterval(corruptTitle, 2000);
 
-// Tab visibility - detect when user leaves
+// ─────────────────────────────────────────────
+// TAB STALKING — Enhanced
+// ─────────────────────────────────────────────
 let awayTime = 0;
+let visitCount = parseInt(localStorage.getItem('abyssVisits') || '0');
+localStorage.setItem('abyssVisits', (visitCount + 1).toString());
+
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         awayTime = Date.now();
+        document.title = "COME BACK";
     } else {
+        document.title = "ABYSSAL TERMINAL v666";
         const gone = Date.now() - awayTime;
-        if (gone > 10000) { // Gone more than 10 seconds
-            addPossessionLog();
-            const entry = possessionLog.lastChild;
-            entry.textContent = `> You were gone for ${Math.floor(gone/1000)} seconds. I watched the page alone.`;
+        if (gone > 5000) {
+            addPossessionLog(`You were gone for ${Math.floor(gone/1000)} seconds. I counted every one.`);
             triggerPossession();
         }
     }
 });
+
+// ─────────────────────────────────────────────
+// VICTIM DATA COLLECTION — Browser fingerprinting
+// ─────────────────────────────────────────────
+const dataLine1 = document.getElementById('dataLine1');
+const dataLine2 = document.getElementById('dataLine2');
+const dataLine3 = document.getElementById('dataLine3');
+
+function collectVictimData() {
+    const ua = navigator.userAgent;
+    const platform = navigator.platform;
+    const cores = navigator.hardwareConcurrency || '?';
+    const memory = navigator.deviceMemory || '?';
+    const lang = navigator.language;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const screenW = screen.width;
+    const screenH = screen.height;
+    const dpr = window.devicePixelRatio;
+    const online = navigator.onLine ? 'CONNECTED' : 'ISOLATED';
+    const referrer = document.referrer || 'DIRECT';
+    const visits = localStorage.getItem('abyssVisits') || '1';
+    
+    dataLine1.textContent = `PLATFORM: ${platform} | CORES: ${cores} | MEM: ${memory}GB | LANG: ${lang}`;
+    dataLine2.textContent = `SCREEN: ${screenW}x${screenH}@${dpr}x | TZ: ${tz} | NET: ${online}`;
+    dataLine3.textContent = `VISITS: ${visits} | SOURCE: ${referrer.substring(0, 30)}... | STATUS: HARVESTING`;
+}
+
+setTimeout(collectVictimData, 2000);
+
+// ─────────────────────────────────────────────
+// KEYBOARD STALKING — Log keystrokes (visual only)
+// ─────────────────────────────────────────────
+let keyBuffer = '';
+document.addEventListener('keydown', (e) => {
+    if (e.key.length === 1) {
+        keyBuffer += e.key;
+        if (keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
+    }
+    if (Math.random() < 0.05) {
+        addPossessionLog(`I see you typing: "${keyBuffer.slice(-10)}..."`);
+    }
+});
+
+// ─────────────────────────────────────────────
+// SCROLL JACKING — Occasional forced scroll
+// ─────────────────────────────────────────────
+setInterval(() => {
+    if (Math.random() < 0.03) {
+        window.scrollBy(0, (Math.random() - 0.5) * 100);
+    }
+}, 5000);
+
+// ─────────────────────────────────────────────
+// CURSOR POSSESSION — Occasional cursor freeze/shift
+// ─────────────────────────────────────────────
+let cursorX = 0, cursorY = 0;
+document.addEventListener('mousemove', (e) => {
+    cursorX = e.clientX;
+    cursorY = e.clientY;
+});
+
+setInterval(() => {
+    if (Math.random() < 0.02) {
+        const body = document.body;
+        body.style.cursor = 'none';
+        const ghost = document.createElement('div');
+        ghost.style.cssText = `position:fixed;left:${cursorX}px;top:${cursorY}px;width:20px;height:20px;background:rgba(255,0,0,0.3);border-radius:50%;pointer-events:none;z-index:9999;transition:all 0.5s;`;
+        document.body.appendChild(ghost);
+        setTimeout(() => {
+            ghost.style.left = (cursorX + (Math.random() - 0.5) * 100) + 'px';
+            ghost.style.top = (cursorY + (Math.random() - 0.5) * 100) + 'px';
+            ghost.style.opacity = '0';
+        }, 50);
+        setTimeout(() => {
+            ghost.remove();
+            body.style.cursor = 'crosshair';
+        }, 600);
+    }
+}, 8000);
+
+// ─────────────────────────────────────────────
+// CONSOLE WARNING — For the curious
+// ─────────────────────────────────────────────
+console.log('%c ABYSSAL TERMINAL v666 ', 'background: #ff0000; color: #000; font-size: 24px; font-weight: bold;');
+console.log('%c You should not be here. ', 'color: #ff0000; font-size: 14px;');
+console.log('%c The console is not safe. ', 'color: #aa0000; font-size: 12px;');
+console.log('%c I see you reading this. ', 'color: #880000; font-size: 11px;');
+
+// Override console methods to feel watched
+const originalLog = console.log;
+console.log = function(...args) {
+    if (Math.random() < 0.1) {
+        originalLog.call(console, '%c[ABYSS]', 'color: #ff0000', 'I heard that.');
+    }
+    originalLog.apply(console, args);
+};

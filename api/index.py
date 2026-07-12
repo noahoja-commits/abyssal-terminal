@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from pathlib import Path
 import os
+import random
 
 app = FastAPI(title="Abyssal Terminal v666")
 
@@ -18,10 +18,12 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <canvas id="bloodCanvas"></canvas>
     <canvas id="emberCanvas"></canvas>
     <canvas id="veinCanvas"></canvas>
+    <canvas id="noiseCanvas"></canvas>
     <div class="scanlines"></div>
     <div class="vignette"></div>
     <div class="possession-flash" id="possessionFlash"></div>
     <div class="corruption-overlay" id="corruptionOverlay"></div>
+    <div class="static-burst" id="staticBurst"></div>
 
     <div class="pentagram-bg">
         <svg viewBox="0 0 200 200">
@@ -50,7 +52,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
         </div>
 
         <h1 class="glitch-title" data-text="ABYSSAL TERMINAL">ABYSSAL TERMINAL</h1>
-        <p class="subtitle">v666.0.0 — GOY OPERATIVE</p>
+        <p class="subtitle">v666.6.6 — GOY OPERATIVE</p>
 
         <div class="command-line" id="commandLine">
             <span class="prompt">root@abyss:~$</span>
@@ -63,14 +65,25 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             <button class="ritual-btn" data-rite="banish">BANISH</button>
             <button class="ritual-btn" data-rite="divine">DIVINE</button>
             <button class="ritual-btn" data-rite="blood">BLOOD</button>
+            <button class="ritual-btn" data-rite="exorcise">EXORCISE</button>
         </div>
         <div class="ritual-output" id="ritualOutput"></div>
 
         <div class="possession-log" id="possessionLog"></div>
+        
+        <div class="victim-data" id="victimData">
+            <div class="data-line" id="dataLine1">COLLECTING...</div>
+            <div class="data-line" id="dataLine2">...</div>
+            <div class="data-line" id="dataLine3">...</div>
+        </div>
     </div>
 
     <div class="easter-egg" id="easterEgg">666</div>
     <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
+    <div class="clock" id="clock">00:00:00</div>
+
+    <div class="face-overlay" id="faceOverlay"></div>
+    <div class="whisper-text" id="whisperText"></div>
 
     <script src="/app.js"></script>
 </body>
@@ -88,22 +101,34 @@ async def favicon():
 async def status():
     return {
         "status": "operational",
-        "version": "666.0.0",
+        "version": "666.6.6",
         "operative": "GOY",
-        "souls_collected": 666,
-        "abyss_depth": "unlimited"
+        "souls_collected": random.randint(665, 667),
+        "abyss_depth": "unlimited",
+        "containment": "breached",
+        "entities_active": random.randint(1, 13)
     }
 
 @app.get("/api/ritual/{rite}")
 async def ritual(rite: str):
     rites = {
-        "summon": "Entity manifesting in sector 7",
-        "banish": "Cleansing protocols initiated",
-        "divine": "No divine signal detected",
-        "blood": "Blood rain intensity increased",
+        "summon": "Entity manifesting in sector 7. Do not look directly at it.",
+        "banish": "Cleansing protocols initiated. It resists.",
+        "divine": "No divine signal detected. The heavens are silent.",
+        "blood": "Blood rain intensity increased. Splatter radius expanded.",
+        "exorcise": "The entity laughs. You cannot cast out what was invited.",
     }
     return {
         "rite": rite,
-        "result": rites.get(rite, "Unknown ritual. The void stares back."),
-        "timestamp": "eternity"
+        "result": rites.get(rite, "Unknown ritual. The void stares back. Something stares with it."),
+        "timestamp": "eternity",
+        "corruption_level": random.randint(1, 100)
+    }
+
+@app.get("/api/telemetry")
+async def telemetry():
+    return {
+        "message": "Telemetry endpoint active. The server sees everything.",
+        "warning": "Your connection is not anonymous.",
+        "suggestion": "Do not refresh."
     }

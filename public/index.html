@@ -10,10 +10,12 @@
     <canvas id="bloodCanvas"></canvas>
     <canvas id="emberCanvas"></canvas>
     <canvas id="veinCanvas"></canvas>
+    <canvas id="noiseCanvas"></canvas>
     <div class="scanlines"></div>
     <div class="vignette"></div>
     <div class="possession-flash" id="possessionFlash"></div>
     <div class="corruption-overlay" id="corruptionOverlay"></div>
+    <div class="static-burst" id="staticBurst"></div>
 
     <div class="pentagram-bg">
         <svg viewBox="0 0 200 200">
@@ -55,18 +57,25 @@
             <button class="ritual-btn" data-rite="banish">BANISH</button>
             <button class="ritual-btn" data-rite="divine">DIVINE</button>
             <button class="ritual-btn" data-rite="blood">BLOOD</button>
+            <button class="ritual-btn" data-rite="exorcise">EXORCISE</button>
         </div>
         <div class="ritual-output" id="ritualOutput"></div>
 
         <div class="possession-log" id="possessionLog"></div>
+        
+        <div class="victim-data" id="victimData">
+            <div class="data-line" id="dataLine1">COLLECTING...</div>
+            <div class="data-line" id="dataLine2">...</div>
+            <div class="data-line" id="dataLine3">...</div>
+        </div>
     </div>
 
     <div class="easter-egg" id="easterEgg">666</div>
     <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
+    <div class="clock" id="clock">00:00:00</div>
 
-    <audio id="ambientDrone" loop preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleR0NZKrk7rNsGgxJkNTsvXwkDk+L0O+0dSQPUIjN7LVyJQ1KiMzrsnMiDUmGzOuwdyMOSIfL6q12Iw5IhsnprHUjDkiGyOepdSIO" type="audio/wav">
-    </audio>
+    <div class="face-overlay" id="faceOverlay"></div>
+    <div class="whisper-text" id="whisperText"></div>
 
     <script src="/app.js"></script>
 </body>

@@ -7,18 +7,16 @@
 }
 
 :root {
-    --hellfire: #ff2a2a;
-    --ember: #ff6600;
-    --sulfur: #ccff00;
-    --ash: #1a1a1a;
-    --bone: #e0d5c5;
-    --vein: #4a0000;
-    --void: #050505;
-    --flesh: #8B4513;
-    --flesh-light: #A0522D;
-    --flesh-dark: #5C2E0E;
-    --ichor: #4a0000;
-    --rot: #2d1a1a;
+    --hellfire: #ff1a1a;
+    --ember: #ff4400;
+    --sulfur: #ddff00;
+    --ash: #0a0a0a;
+    --bone: #d4c4b0;
+    --vein: #3a0000;
+    --void: #020202;
+    --flesh: #7a3a1a;
+    --ichor: #2a0000;
+    --rot: #1a0a0a;
 }
 
 body {
@@ -27,12 +25,28 @@ body {
     font-family: 'Courier Prime', monospace;
     overflow: hidden;
     cursor: crosshair;
-    animation: bodyPulse 8s ease-in-out infinite;
+    animation: bodyPulse 6s ease-in-out infinite;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 @keyframes bodyPulse {
     0%, 100% { background-color: var(--void); }
-    50% { background-color: #0a0505; }
+    33% { background-color: #050101; }
+    66% { background-color: #080202; }
+}
+
+/* Noise Canvas */
+#noiseCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.08;
+    mix-blend-mode: overlay;
 }
 
 /* Blood Rain Canvas */
@@ -66,7 +80,36 @@ body {
     height: 100%;
     z-index: 3;
     pointer-events: none;
-    opacity: 0.4;
+    opacity: 0.5;
+}
+
+/* Static Burst */
+.static-burst {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 55;
+    pointer-events: none;
+    background: repeating-radial-gradient(
+        circle at 50% 50%,
+        transparent 0,
+        transparent 2px,
+        rgba(255, 255, 255, 0.03) 2px,
+        rgba(255, 255, 255, 0.03) 4px
+    );
+    opacity: 0;
+}
+
+.static-burst.active {
+    animation: staticBurstAnim 0.3s ease-out;
+}
+
+@keyframes staticBurstAnim {
+    0% { opacity: 0; }
+    30% { opacity: 0.4; }
+    100% { opacity: 0; }
 }
 
 /* Corruption Overlay */
@@ -82,8 +125,8 @@ body {
         0deg,
         transparent,
         transparent 2px,
-        rgba(255, 0, 0, 0.02) 2px,
-        rgba(255, 0, 0, 0.02) 4px
+        rgba(255, 0, 0, 0.03) 2px,
+        rgba(255, 0, 0, 0.03) 4px
     );
     opacity: 0;
     transition: opacity 0.5s;
@@ -91,12 +134,54 @@ body {
 
 .corruption-overlay.active {
     opacity: 1;
-    animation: corruptionFlicker 0.1s infinite;
+    animation: corruptionFlicker 0.08s infinite;
 }
 
 @keyframes corruptionFlicker {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+}
+
+/* Face Overlay - subliminal flash */
+.face-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 60;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(255, 20, 20, 0.0) 0%, transparent 70%);
+    opacity: 0;
+}
+
+.face-overlay.active {
+    animation: faceFlash 0.08s ease-out;
+}
+
+@keyframes faceFlash {
+    0% { opacity: 0; }
+    50% { opacity: 0.15; }
+    100% { opacity: 0; }
+}
+
+/* Whisper Text */
+.whisper-text {
+    position: fixed;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: rgba(255, 42, 42, 0.0);
+    z-index: 45;
+    pointer-events: none;
+    white-space: nowrap;
+    letter-spacing: 0.2em;
+    transition: color 3s ease;
+}
+
+.whisper-text.visible {
+    color: rgba(255, 42, 42, 0.15);
 }
 
 /* Main Terminal */
@@ -110,17 +195,17 @@ body {
     justify-content: center;
     padding: 2rem;
     border: 1px solid transparent;
-    animation: terminalBreath 6s ease-in-out infinite;
+    animation: terminalBreath 4s ease-in-out infinite;
 }
 
 @keyframes terminalBreath {
     0%, 100% { 
-        border-color: rgba(74, 0, 0, 0.2);
-        box-shadow: inset 0 0 50px rgba(74, 0, 0, 0.1);
+        border-color: rgba(74, 0, 0, 0.3);
+        box-shadow: inset 0 0 60px rgba(74, 0, 0, 0.15);
     }
     50% { 
-        border-color: rgba(74, 0, 0, 0.5);
-        box-shadow: inset 0 0 100px rgba(74, 0, 0, 0.3);
+        border-color: rgba(74, 0, 0, 0.6);
+        box-shadow: inset 0 0 120px rgba(74, 0, 0, 0.4);
     }
 }
 
@@ -132,19 +217,19 @@ body {
     height: 100%;
     background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
+        rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 1px,
         transparent 1px,
         transparent 2px
     );
     z-index: 5;
     pointer-events: none;
-    animation: scanlineFlicker 0.1s infinite;
+    animation: scanlineFlicker 0.08s infinite;
 }
 
 @keyframes scanlineFlicker {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.98; }
+    50% { opacity: 0.96; }
 }
 
 .vignette {
@@ -153,15 +238,15 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%);
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.9) 100%);
     z-index: 6;
     pointer-events: none;
 }
 
 /* Boot Sequence */
 .boot-sequence {
-    font-size: 0.85rem;
-    line-height: 1.6;
+    font-size: 0.8rem;
+    line-height: 1.5;
     color: var(--sulfur);
     max-width: 600px;
     text-align: left;
@@ -194,35 +279,36 @@ body {
 
 .boot-line.corrupted {
     color: var(--hellfire);
-    animation: textGlitch 0.2s infinite;
+    animation: textGlitch 0.15s infinite;
     font-weight: bold;
 }
 
 @keyframes textGlitch {
     0%, 100% { transform: translate(0); filter: hue-rotate(0); }
-    25% { transform: translate(2px, -1px); filter: hue-rotate(90deg); }
-    50% { transform: translate(-1px, 2px); filter: hue-rotate(180deg); }
-    75% { transform: translate(1px, 1px); filter: hue-rotate(270deg); }
+    20% { transform: translate(3px, -2px); filter: hue-rotate(120deg); }
+    40% { transform: translate(-2px, 3px); filter: hue-rotate(240deg); }
+    60% { transform: translate(2px, 1px); filter: hue-rotate(60deg); }
+    80% { transform: translate(-1px, -2px); filter: hue-rotate(180deg); }
 }
 
 /* Main Sigil */
 .sigil-container {
     position: relative;
-    width: 300px;
-    height: 300px;
-    margin: 2rem 0;
-    filter: drop-shadow(0 0 30px rgba(255, 42, 42, 0.5));
+    width: 280px;
+    height: 280px;
+    margin: 1.5rem 0;
+    filter: drop-shadow(0 0 40px rgba(255, 20, 20, 0.6));
 }
 
 .sigil {
     width: 100%;
     height: 100%;
-    animation: sigilPulse 4s ease-in-out infinite, sigilRotate 60s linear infinite;
+    animation: sigilPulse 3s ease-in-out infinite, sigilRotate 45s linear infinite;
 }
 
 @keyframes sigilPulse {
-    0%, 100% { filter: drop-shadow(0 0 20px var(--hellfire)) brightness(1); }
-    50% { filter: drop-shadow(0 0 60px var(--hellfire)) brightness(1.3); }
+    0%, 100% { filter: drop-shadow(0 0 30px var(--hellfire)) brightness(1); }
+    50% { filter: drop-shadow(0 0 80px var(--hellfire)) brightness(1.5); }
 }
 
 @keyframes sigilRotate {
@@ -233,7 +319,7 @@ body {
 .sigil path {
     fill: none;
     stroke: var(--hellfire);
-    stroke-width: 1.5;
+    stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
@@ -241,25 +327,25 @@ body {
 .sigil circle {
     fill: none;
     stroke: var(--hellfire);
-    stroke-width: 1;
+    stroke-width: 1.5;
 }
 
 /* Glitch Text */
 .glitch-title {
     font-family: 'Cinzel', serif;
-    font-size: 3rem;
+    font-size: 2.8rem;
     font-weight: 900;
     color: var(--bone);
     position: relative;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    margin: 1rem 0;
-    animation: titleBreath 4s ease-in-out infinite;
+    margin: 0.8rem 0;
+    animation: titleBreath 3s ease-in-out infinite;
 }
 
 @keyframes titleBreath {
-    0%, 100% { text-shadow: 0 0 10px var(--hellfire); }
-    50% { text-shadow: 0 0 40px var(--hellfire), 0 0 80px var(--hellfire); }
+    0%, 100% { text-shadow: 0 0 15px var(--hellfire); }
+    50% { text-shadow: 0 0 50px var(--hellfire), 0 0 100px var(--hellfire); }
 }
 
 .glitch-title::before,
@@ -274,68 +360,75 @@ body {
 
 .glitch-title::before {
     color: var(--hellfire);
-    animation: glitch-1 2s infinite;
+    animation: glitch-1 1.5s infinite;
     clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
 }
 
 .glitch-title::after {
     color: var(--sulfur);
-    animation: glitch-2 2s infinite;
+    animation: glitch-2 1.5s infinite;
     clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
 }
 
 @keyframes glitch-1 {
     0%, 100% { transform: translate(0); }
-    20% { transform: translate(-3px, 2px); }
-    40% { transform: translate(3px, -2px); }
-    60% { transform: translate(-2px, 0); }
-    80% { transform: translate(2px, 1px); }
+    15% { transform: translate(-4px, 3px); }
+    30% { transform: translate(4px, -3px); }
+    45% { transform: translate(-3px, 1px); }
+    60% { transform: translate(3px, 2px); }
+    75% { transform: translate(-2px, -2px); }
+    90% { transform: translate(2px, 1px); }
 }
 
 @keyframes glitch-2 {
     0%, 100% { transform: translate(0); }
-    20% { transform: translate(3px, -2px); }
-    40% { transform: translate(-3px, 2px); }
-    60% { transform: translate(2px, 0); }
-    80% { transform: translate(-2px, -1px); }
+    15% { transform: translate(4px, -3px); }
+    30% { transform: translate(-4px, 3px); }
+    45% { transform: translate(3px, -1px); }
+    60% { transform: translate(-3px, -2px); }
+    75% { transform: translate(2px, 2px); }
+    90% { transform: translate(-2px, -1px); }
 }
 
 .subtitle {
     color: var(--ember);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     letter-spacing: 0.3em;
-    animation: subtitleFlicker 3s ease-in-out infinite;
+    animation: subtitleFlicker 2s ease-in-out infinite;
 }
 
 @keyframes subtitleFlicker {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-    75% { opacity: 0.9; }
+    25% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    75% { opacity: 0.5; }
 }
 
-/* Terminal Input with typing effect */
+/* Terminal Input */
 .command-line {
-    margin-top: 2rem;
-    font-size: 1rem;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     min-height: 1.5rem;
+    font-family: 'Courier Prime', monospace;
 }
 
 .prompt {
     color: var(--hellfire);
     font-weight: bold;
-    animation: promptPulse 2s ease-in-out infinite;
+    animation: promptPulse 1.5s ease-in-out infinite;
 }
 
 @keyframes promptPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+    0%, 100% { opacity: 1; text-shadow: 0 0 5px var(--hellfire); }
+    50% { opacity: 0.5; text-shadow: 0 0 15px var(--hellfire); }
 }
 
 .typed-text {
     color: var(--bone);
+    min-width: 10px;
 }
 
 .cursor {
@@ -343,8 +436,9 @@ body {
     width: 10px;
     height: 1.2em;
     background: var(--hellfire);
-    animation: blink 1s step-end infinite;
+    animation: blink 0.8s step-end infinite;
     vertical-align: text-bottom;
+    box-shadow: 0 0 10px var(--hellfire);
 }
 
 @keyframes blink {
@@ -354,9 +448,9 @@ body {
 
 /* Ritual Panel */
 .ritual-panel {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     display: flex;
-    gap: 1rem;
+    gap: 0.8rem;
     flex-wrap: wrap;
     justify-content: center;
     opacity: 0;
@@ -371,23 +465,23 @@ body {
 
 .ritual-btn {
     background: transparent;
-    border: 1px solid var(--hellfire);
+    border: 1.5px solid var(--hellfire);
     color: var(--hellfire);
     font-family: 'Courier Prime', monospace;
-    font-size: 0.85rem;
-    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+    padding: 0.5rem 1.2rem;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    animation: btnBreath 3s ease-in-out infinite;
+    animation: btnBreath 2s ease-in-out infinite;
 }
 
 @keyframes btnBreath {
-    0%, 100% { box-shadow: 0 0 5px rgba(255, 42, 42, 0.2); }
-    50% { box-shadow: 0 0 20px rgba(255, 42, 42, 0.4); }
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 20, 20, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(255, 20, 20, 0.5); }
 }
 
 .ritual-btn::before {
@@ -404,7 +498,8 @@ body {
 
 .ritual-btn:hover {
     color: var(--void);
-    box-shadow: 0 0 30px var(--hellfire);
+    box-shadow: 0 0 40px var(--hellfire);
+    border-color: var(--hellfire);
 }
 
 .ritual-btn:hover::before {
@@ -412,76 +507,111 @@ body {
 }
 
 .ritual-btn.possessed {
-    animation: btnPossessed 0.5s ease-in-out infinite;
+    animation: btnPossessed 0.4s ease-in-out infinite;
     border-color: var(--sulfur);
     color: var(--sulfur);
+    box-shadow: 0 0 30px var(--sulfur);
 }
 
 @keyframes btnPossessed {
     0%, 100% { transform: translate(0) scale(1); }
-    25% { transform: translate(2px, -2px) scale(1.05); }
-    50% { transform: translate(-2px, 2px) scale(0.95); }
-    75% { transform: translate(1px, 1px) scale(1.02); }
+    20% { transform: translate(3px, -3px) scale(1.08); }
+    40% { transform: translate(-3px, 3px) scale(0.92); }
+    60% { transform: translate(2px, 2px) scale(1.04); }
+    80% { transform: translate(-2px, -2px) scale(0.96); }
 }
 
 .ritual-output {
-    margin-top: 1rem;
-    font-size: 0.85rem;
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
     color: var(--sulfur);
     min-height: 1.5rem;
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s;
+    font-weight: bold;
+    letter-spacing: 0.05em;
 }
 
 .ritual-output.visible {
     opacity: 1;
 }
 
-/* Possession Log - auto-typing creepy messages */
+/* Possession Log */
 .possession-log {
-    margin-top: 2rem;
-    font-size: 0.75rem;
-    color: rgba(255, 42, 42, 0.4);
-    max-width: 500px;
+    margin-top: 1.5rem;
+    font-size: 0.7rem;
+    color: rgba(255, 20, 20, 0.35);
+    max-width: 450px;
     text-align: left;
-    min-height: 100px;
+    min-height: 80px;
     font-style: italic;
-    line-height: 1.8;
+    line-height: 1.6;
 }
 
 .possession-log .log-entry {
     opacity: 0;
-    animation: logFadeIn 0.5s forwards;
+    animation: logFadeIn 0.3s forwards;
 }
 
 @keyframes logFadeIn {
     to { opacity: 1; }
 }
 
+/* Victim Data Display */
+.victim-data {
+    margin-top: 1.5rem;
+    font-size: 0.65rem;
+    color: rgba(255, 20, 20, 0.25);
+    text-align: left;
+    max-width: 400px;
+    border: 1px solid rgba(74, 0, 0, 0.3);
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+}
+
+.victim-data.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.data-line {
+    line-height: 1.8;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: 0.05em;
+}
+
+.data-line::before {
+    content: '> ';
+    color: var(--hellfire);
+}
+
 /* Demon Spawns */
 .demon-ascii {
     position: fixed;
     font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     line-height: 1;
     color: var(--hellfire);
     opacity: 0;
     pointer-events: none;
     z-index: 3;
     white-space: pre;
-    text-shadow: 0 0 10px var(--hellfire);
+    text-shadow: 0 0 15px var(--hellfire);
 }
 
 .demon-ascii.visible {
-    animation: demonSpawn 3s ease-out forwards;
+    animation: demonSpawn 2.5s ease-out forwards;
 }
 
 @keyframes demonSpawn {
-    0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-    20% { opacity: 0.8; }
-    80% { opacity: 0.6; }
-    100% { opacity: 0; transform: scale(1.2) rotate(10deg); }
+    0% { opacity: 0; transform: scale(0.3) rotate(-20deg) translateY(20px); }
+    15% { opacity: 1; }
+    70% { opacity: 0.7; }
+    100% { opacity: 0; transform: scale(1.5) rotate(20deg) translateY(-30px); }
 }
 
 /* Possession Event */
@@ -498,11 +628,11 @@ body {
 }
 
 .possession-flash.active {
-    animation: possessionFlash 0.15s ease-out;
+    animation: possessionFlash 0.12s ease-out;
 }
 
 @keyframes possessionFlash {
-    0% { opacity: 0.8; }
+    0% { opacity: 0.9; }
     100% { opacity: 0; }
 }
 
@@ -512,17 +642,17 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80vmin;
-    height: 80vmin;
-    opacity: 0.03;
+    width: 85vmin;
+    height: 85vmin;
+    opacity: 0.04;
     z-index: 0;
     pointer-events: none;
-    animation: pentagramBreath 10s ease-in-out infinite;
+    animation: pentagramBreath 8s ease-in-out infinite;
 }
 
 @keyframes pentagramBreath {
-    0%, 100% { opacity: 0.03; transform: translate(-50%, -50%) scale(1); }
-    50% { opacity: 0.06; transform: translate(-50%, -50%) scale(1.05); }
+    0%, 100% { opacity: 0.04; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.08; transform: translate(-50%, -50%) scale(1.08); }
 }
 
 .pentagram-bg svg {
@@ -535,17 +665,29 @@ body {
     position: fixed;
     bottom: 10px;
     left: 10px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--sulfur);
     z-index: 10;
-    opacity: 0.6;
-    animation: statusFlicker 4s ease-in-out infinite;
+    opacity: 0.5;
+    animation: statusFlicker 3s ease-in-out infinite;
 }
 
 @keyframes statusFlicker {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 0.3; }
-    75% { opacity: 0.8; }
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.2; }
+    75% { opacity: 0.7; }
+}
+
+/* Clock */
+.clock {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 0.65rem;
+    color: rgba(255, 20, 20, 0.3);
+    z-index: 10;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: 0.1em;
 }
 
 /* 666 Easter Egg */
@@ -553,55 +695,61 @@ body {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    font-size: 0.6rem;
-    color: rgba(255, 42, 42, 0.2);
+    font-size: 0.55rem;
+    color: rgba(255, 20, 20, 0.15);
     z-index: 10;
     cursor: pointer;
-    transition: color 0.3s;
-    animation: easterEggPulse 6s ease-in-out infinite;
+    transition: all 0.3s;
+    animation: easterEggPulse 4s ease-in-out infinite;
 }
 
 @keyframes easterEggPulse {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.5; }
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.4; }
 }
 
 .easter-egg:hover {
     color: var(--hellfire);
     opacity: 1;
+    text-shadow: 0 0 10px var(--hellfire);
 }
 
 /* Infected elements */
 .infected {
-    animation: infectedGlitch 0.3s infinite !important;
-    filter: hue-rotate(90deg) saturate(2) !important;
+    animation: infectedGlitch 0.2s infinite !important;
+    filter: hue-rotate(90deg) saturate(3) contrast(1.5) !important;
 }
 
 @keyframes infectedGlitch {
-    0%, 100% { transform: translate(0); }
-    25% { transform: translate(3px, -2px); }
-    50% { transform: translate(-2px, 3px); }
-    75% { transform: translate(1px, 1px); }
+    0%, 100% { transform: translate(0) skew(0); }
+    20% { transform: translate(4px, -3px) skew(2deg); }
+    40% { transform: translate(-3px, 4px) skew(-2deg); }
+    60% { transform: translate(2px, 2px) skew(1deg); }
+    80% { transform: translate(-2px, -2px) skew(-1deg); }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .glitch-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     .sigil-container {
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
     }
     .ritual-panel {
-        gap: 0.5rem;
+        gap: 0.4rem;
     }
     .ritual-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
     }
     .possession-log {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+        max-width: 90vw;
+    }
+    .victim-data {
+        font-size: 0.6rem;
         max-width: 90vw;
     }
 }

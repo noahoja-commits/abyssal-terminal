@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABYSSAL TERMINAL v666</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <canvas id="bloodCanvas"></canvas>
+    <canvas id="emberCanvas"></canvas>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="possession-flash" id="possessionFlash"></div>
+
+    <div class="pentagram-bg">
+        <svg viewBox="0 0 200 200">
+            <polygon points="100,10 40,198 190,78 10,78 160,198" 
+                     fill="none" stroke="#ff2a2a" stroke-width="1"/>
+            <circle cx="100" cy="100" r="95" fill="none" stroke="#ff2a2a" stroke-width="0.5"/>
+        </svg>
+    </div>
+
+    <div class="terminal">
+        <div class="boot-sequence" id="bootSequence"></div>
+
+        <div class="sigil-container">
+            <svg class="sigil" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="95"/>
+                <circle cx="100" cy="100" r="70"/>
+                <path d="M100,15 L15,170 L185,170 Z"/>
+                <path d="M100,185 L15,30 L185,30 Z"/>
+                <ellipse cx="100" cy="100" rx="20" ry="12"/>
+                <circle cx="100" cy="100" r="6"/>
+                <path d="M100,5 L100,15 M100,185 L100,195"/>
+                <path d="M5,100 L15,100 M185,100 L195,100"/>
+                <path d="M50,50 Q100,30 150,50"/>
+                <path d="M50,150 Q100,170 150,150"/>
+            </svg>
+        </div>
+
+        <h1 class="glitch-title" data-text="ABYSSAL TERMINAL">ABYSSAL TERMINAL</h1>
+        <p class="subtitle">v666.0.0 — GOY OPERATIVE</p>
+
+        <div class="command-line">
+            <span class="prompt">root@abyss:~$</span>
+            <span class="cursor"></span>
+        </div>
+
+        <div class="ritual-panel" id="ritualPanel">
+            <button class="ritual-btn" data-rite="summon">SUMMON</button>
+            <button class="ritual-btn" data-rite="banish">BANISH</button>
+            <button class="ritual-btn" data-rite="divine">DIVINE</button>
+            <button class="ritual-btn" data-rite="blood">BLOOD</button>
+        </div>
+        <div class="ritual-output" id="ritualOutput"></div>
+    </div>
+
+    <div class="easter-egg" id="easterEgg">666</div>
+    <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

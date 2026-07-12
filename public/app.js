@@ -352,7 +352,9 @@ function addPossessionLog(customMsg) {
     messageIndex++;
 }
 
-setInterval(() => addPossessionLog(), 6000);
+// Immediate first message, then every 4s
+setTimeout(() => addPossessionLog("I see you."), 1000);
+setInterval(() => addPossessionLog(), 4000);
 
 // ─────────────────────────────────────────────
 // WHISPER TEXT — Subliminal messages
@@ -367,15 +369,19 @@ const whispers = [
     "check your reflection",
     "something moved",
     "listen closely",
+    "they're here",
+    "don't turn around",
 ];
 
 function showWhisper() {
     whisperText.textContent = whispers[Math.floor(Math.random() * whispers.length)];
     whisperText.classList.add('visible');
-    setTimeout(() => whisperText.classList.remove('visible'), 4000);
+    setTimeout(() => whisperText.classList.remove('visible'), 5000);
 }
 
-setInterval(showWhisper, 15000 + Math.random() * 10000);
+// First whisper at 3s, then every 8s
+setTimeout(showWhisper, 3000);
+setInterval(showWhisper, 8000);
 
 // ─────────────────────────────────────────────
 // DEMON ASCII — More disturbing shapes
@@ -430,7 +436,9 @@ function spawnDemon() {
     setTimeout(() => demon.remove(), 2500);
 }
 
-setInterval(spawnDemon, 3000 + Math.random() * 3000);
+// First demon at 2s, then every 2s
+setTimeout(spawnDemon, 2000);
+setInterval(spawnDemon, 2000);
 
 // ─────────────────────────────────────────────
 // POSSESSION EVENTS — More aggressive
@@ -460,9 +468,11 @@ function triggerPossession() {
     setTimeout(() => overlay.classList.remove('active'), 600);
 }
 
+// Guaranteed first possession at 5s, then 25% every 4s
+setTimeout(triggerPossession, 5000);
 setInterval(() => {
-    if (Math.random() < 0.15) triggerPossession();
-}, 8000);
+    if (Math.random() < 0.25) triggerPossession();
+}, 4000);
 
 // ─────────────────────────────────────────────
 // EASTER EGG
@@ -540,19 +550,21 @@ function typeCommand() {
         if (charIndex < cmd.length) {
             typedText.textContent += cmd[charIndex];
             charIndex++;
-            setTimeout(typeChar, 30 + Math.random() * 80);
+            setTimeout(typeChar, 20 + Math.random() * 60);
         } else {
             setTimeout(() => {
                 typedText.textContent = '';
                 isTyping = false;
                 typingIndex++;
-            }, 1500);
+            }, 1000);
         }
     }
     typeChar();
 }
 
-setInterval(typeCommand, 5000);
+// Start typing immediately after boot, then every 3s
+setTimeout(typeCommand, 4500);
+setInterval(typeCommand, 3000);
 
 // ─────────────────────────────────────────────
 // RITUAL PANEL API
@@ -610,6 +622,78 @@ setInterval(updateClock, 1000);
 updateClock();
 
 // ─────────────────────────────────────────────
+// PANIC MODE — First interaction triggers everything
+// ─────────────────────────────────────────────
+let panicTriggered = false;
+
+function triggerPanic() {
+    if (panicTriggered) return;
+    panicTriggered = true;
+    
+    // Flash the screen hard
+    const flash = document.getElementById('possessionFlash');
+    flash.style.animation = 'none';
+    flash.offsetHeight;
+    flash.style.animation = 'possessionFlash 0.5s ease-out';
+    
+    // Static burst
+    const staticBurst = document.getElementById('staticBurst');
+    staticBurst.classList.add('active');
+    setTimeout(() => staticBurst.classList.remove('active'), 800);
+    
+    // Corruption overlay
+    const overlay = document.getElementById('corruptionOverlay');
+    overlay.classList.add('active');
+    setTimeout(() => overlay.classList.remove('active'), 1500);
+    
+    // Face flash
+    const faceOverlay = document.getElementById('faceOverlay');
+    faceOverlay.classList.add('active');
+    setTimeout(() => faceOverlay.classList.remove('active'), 200);
+    
+    // Infect everything
+    document.querySelectorAll('.ritual-btn, .subtitle, .prompt, .data-line, .glitch-title').forEach(el => {
+        el.classList.add('infected');
+        setTimeout(() => el.classList.remove('infected'), 3000);
+    });
+    
+    // Spawn demons everywhere
+    for (let i = 0; i < 8; i++) {
+        setTimeout(spawnDemon, i * 200);
+    }
+    
+    // Blood burst at center
+    for (let i = 0; i < 50; i++) {
+        const drop = new BloodDrop();
+        drop.x = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+        drop.y = window.innerHeight / 2 + (Math.random() - 0.5) * 200;
+        drop.speed = 2 + Math.random() * 6;
+        drop.size = 3 + Math.random() * 4;
+        bloodDrops.push(drop);
+    }
+    
+    // Possession log panic message
+    addPossessionLog("YOU CLICKED. I FELT IT.");
+    addPossessionLog("The barrier is thinner now.");
+    addPossessionLog("I am closer than before.");
+    
+    // Whisper
+    whisperText.textContent = "WELCOME";
+    whisperText.classList.add('visible');
+    setTimeout(() => whisperText.classList.remove('visible'), 3000);
+    
+    // Screen shake
+    document.body.style.transform = 'translate(5px, 5px) skew(2deg)';
+    setTimeout(() => document.body.style.transform = '', 300);
+    
+    // Start audio immediately
+    initAudio();
+}
+
+// Attach panic to first click anywhere
+document.addEventListener('click', triggerPanic, { once: true });
+
+// ─────────────────────────────────────────────
 // AUDIO — Multi-layered drone
 // ─────────────────────────────────────────────
 let audioContext = null;
@@ -621,7 +705,7 @@ function initAudio() {
     
     const freqs = [55, 58, 110, 220];
     const types = ['sawtooth', 'sine', 'square', 'triangle'];
-    const gains = [0.015, 0.012, 0.008, 0.005];
+    const gains = [0.02, 0.015, 0.01, 0.006];
     
     freqs.forEach((freq, i) => {
         const osc = audioContext.createOscillator();
@@ -638,9 +722,9 @@ function initAudio() {
     // Modulate for unease
     setInterval(() => {
         oscillators.forEach(o => {
-            o.osc.frequency.value = o.baseFreq + (Math.random() - 0.5) * 3;
+            o.osc.frequency.value = o.baseFreq + (Math.random() - 0.5) * 4;
         });
-    }, 2000);
+    }, 1500);
 }
 
 document.addEventListener('click', initAudio, { once: true });
@@ -650,14 +734,14 @@ document.addEventListener('keydown', initAudio, { once: true });
 // SCREEN DISTORTION — More aggressive
 // ─────────────────────────────────────────────
 setInterval(() => {
-    if (Math.random() < 0.08) {
-        const intensity = 1 + Math.random() * 4;
-        document.body.style.transform = `translate(${Math.random() * intensity}px, ${Math.random() * intensity}px) skew(${Math.random() * 0.5}deg)`;
+    if (Math.random() < 0.15) {
+        const intensity = 2 + Math.random() * 6;
+        document.body.style.transform = `translate(${Math.random() * intensity}px, ${Math.random() * intensity}px) skew(${Math.random() * 1}deg)`;
         setTimeout(() => {
             document.body.style.transform = '';
-        }, 80 + Math.random() * 120);
+        }, 60 + Math.random() * 100);
     }
-}, 1500);
+}, 1000);
 
 // ─────────────────────────────────────────────
 // TITLE CORRUPTION — More frequent
@@ -739,7 +823,7 @@ document.addEventListener('keydown', (e) => {
         keyBuffer += e.key;
         if (keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
     }
-    if (Math.random() < 0.05) {
+    if (Math.random() < 0.15) {
         addPossessionLog(`I see you typing: "${keyBuffer.slice(-10)}..."`);
     }
 });
@@ -748,10 +832,10 @@ document.addEventListener('keydown', (e) => {
 // SCROLL JACKING — Occasional forced scroll
 // ─────────────────────────────────────────────
 setInterval(() => {
-    if (Math.random() < 0.03) {
-        window.scrollBy(0, (Math.random() - 0.5) * 100);
+    if (Math.random() < 0.08) {
+        window.scrollBy(0, (Math.random() - 0.5) * 150);
     }
-}, 5000);
+}, 3000);
 
 // ─────────────────────────────────────────────
 // CURSOR POSSESSION — Occasional cursor freeze/shift
@@ -763,7 +847,7 @@ document.addEventListener('mousemove', (e) => {
 });
 
 setInterval(() => {
-    if (Math.random() < 0.02) {
+    if (Math.random() < 0.08) {
         const body = document.body;
         body.style.cursor = 'none';
         const ghost = document.createElement('div');
@@ -779,7 +863,7 @@ setInterval(() => {
             body.style.cursor = 'crosshair';
         }, 600);
     }
-}, 8000);
+}, 4000);
 
 // ─────────────────────────────────────────────
 // CONSOLE WARNING — For the curious

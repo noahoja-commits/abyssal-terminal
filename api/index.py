@@ -12,7 +12,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABYSSAL TERMINAL v666</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <canvas id="bloodCanvas"></canvas>
@@ -72,7 +72,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <div class="easter-egg" id="easterEgg">666</div>
     <div class="status-bar" id="statusBar">SYSTEM: OPERATIONAL</div>
 
-    <script src="/static/app.js"></script>
+    <script src="/app.js"></script>
 </body>
 </html>'''
 
